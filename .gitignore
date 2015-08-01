@@ -1,0 +1,4 @@
+*.pyc
+config.ini
+*.swp
+/stockrank.db
