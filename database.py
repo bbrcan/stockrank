@@ -4,7 +4,9 @@ import sqlite3
 from stock import StockProfile
 
 class StockDatabase(object):
-
+    """Class used to manage the storage and retrieval of stock data from an
+    underlying database.
+    """
     DB_PATH = 'stockrank.db'
 
     def __init__(self):
@@ -25,7 +27,9 @@ class StockDatabase(object):
         self._cursor = db.cursor()
 
     def empty(self):
-
+        """Returns True if no stock data is present in the database, otherwise
+        False.
+        """
         self._cursor.execute('SELECT count(*) FROM stocks')
         row = self._cursor.fetchone()
 
@@ -35,6 +39,11 @@ class StockDatabase(object):
         return False
 
     def populate(self, stock_profiles):
+        """Populates the database with given stock data.
+
+        Arguments:
+        stock_profiles -- A list of StockProfile objects.
+        """
         self._cursor.execute('DELETE FROM stocks')
 
         # store values to insert into the DB here first, so we can insert them
@@ -59,6 +68,8 @@ class StockDatabase(object):
         self._db.commit()
 
     def get_stock_profiles(self):
+        """Returns a list of StockProfile objects, pulled from the database.
+        """
         stock_profiles = []
         self._cursor.execute('SELECT * FROM stocks')
 

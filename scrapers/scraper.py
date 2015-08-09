@@ -7,7 +7,9 @@ from scrapers.asx import AsxScraper
 from exceptions import FieldMissingException
 
 class StockScraper(object):
-
+    """Used to scrape stock data from a variety of sources on the web. This
+    class should be used by the client code instead of the specific scrapers.
+    """
     def __init__(self):
         config = configparser.ConfigParser()
         config.read('config.ini')
@@ -15,6 +17,8 @@ class StockScraper(object):
         ms_username = config.get('Credentials', 'morningstar_username')
         ms_password = config.get('Credentials', 'morningstar_password')
 
+        # we only want stocks with market cap > 50,000
+        # TODO: add this value to the config file!
         self._google_scraper = GoogleScraper(50000000)
         self._asx_scraper = AsxScraper()
         self._ms_scraper = MorningStarScraper(ms_username, ms_password)
@@ -36,6 +40,7 @@ class StockScraper(object):
                 # sector can't be found, it's probably been delisted.
                 continue
 
+            # TODO: add these values into the config file?
             if 'Utilities' in stock.sector \
                     or 'Financ' in stock.sector \
                     or 'Banks' in stock.sector \

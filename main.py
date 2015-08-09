@@ -4,6 +4,7 @@ from stockrank import StockRank
 
 def main():
 
+    # TODO: add command-line options (eg, --scrape, --print)
     stockrank = StockRank()
     stockrank.load()
     stockrank.print_stocks()
