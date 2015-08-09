@@ -25,7 +25,7 @@ class StockRank(object):
 
     def print_stocks(self):
 
-        buf = ('%-4s %-6s %-30s %-30s %-17s %15s %14s' 
+        buf = ('%-4s %-6s %-30s %-20s %17s %15s %10s' 
                 % ('#', 'Symbol', 'Title', 'Sector', 'Market Cap', 
                     'Earnings Yield', 'ROC'))
         print(buf)
@@ -33,8 +33,8 @@ class StockRank(object):
         i = 1
 
         for stock in self._stock_profiles:
-            print('%-4d %-6s %-30s %-30s %-17s %15.2f %14.2f' 
-                    % (i, stock.symbol, stock.title[:30], stock.sector[:30],
+            print('%-4d %-6s %-30s %-20s %17s %15.2f %10.2f' 
+                    % (i, stock.symbol, stock.title[:30], stock.sector[:20],
                         '${:,}'.format(stock.market_cap), stock.earnings_yield,
                         stock.return_on_capital))
             i += 1
