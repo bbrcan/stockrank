@@ -5,10 +5,26 @@ import re
 from bs4 import BeautifulSoup
 import urllib.request
 import http.cookiejar
-from stock import StockProfile
+import http.client
+import ssl
 import random
+import requests
+import itertools
+
 from helpers import timestamp
 from exceptions import FieldMissingException
+from stock import StockProfile
+
+from requests.adapters import HTTPAdapter
+from requests.packages.urllib3.poolmanager import PoolManager
+import ssl
+
+class TLSHTTPAdapter(HTTPAdapter):
+    def init_poolmanager(self, connections, maxsize, block=False):
+        self.poolmanager = PoolManager(num_pools=connections,
+                maxsize=maxsize,
+                block=block,
+                ssl_version=ssl.PROTOCOL_TLSv1)
 
 class MorningStarScraper(object):
     """Class used to scrape stock data from MorningStar. login() must be called
@@ -18,20 +34,34 @@ class MorningStarScraper(object):
     def __init__(self, username, password):
         self.username = username
         self.password = password
-        self._cookie_jar = http.cookiejar.CookieJar()
-        self._url_opener = urllib.request.build_opener(
-                urllib.request.HTTPCookieProcessor(self._cookie_jar))
+        #cookie_jar = http.cookiejar.CookieJar()
+        #self._user_agent = 'Mozilla/5.0'
+        self._session = requests.session()
+        self._session.mount('https://', TLSHTTPAdapter())
+
+        #https_handler = urllib.request.HTTPSHandler(
+        #        context=ssl.SSLContext(ssl.PROTOCOL_SSLv3))
+
+        #cookie_processor = urllib.request.HTTPCookieProcessor(cookie_jar)
+        #self._url_opener = urllib.request.build_opener(cookie_processor)
+        #self._url_opener.addheaders = [('User-agent', 'Mozilla/5.0')]
 
     def login(self):
         """Logs into MorningStar, so members-only pages can be loaded. This must
         be run before scrape_stock_profile().
         """
-        url = 'http://www.morningstar.com.au/Security/Login'
+        url = 'https://www.morningstar.com.au/Security/Login'
 
         values = {'UserName': self.username, 'Password': self.password }
-        data = urllib.parse.urlencode(values)
-        binary_data = data.encode('utf-8')
-        self._url_opener.open(url, binary_data)
+        headers = { 'User-agent' : 'Mozilla/5.0' }
+        #data = urllib.parse.urlencode(values)
+        #binary_data = data.encode('utf-8')
+        #self._url_opener.open(url, binary_data)
+        self._session.post(url, 
+                data = values, 
+                headers = headers,
+                verify = True,
+                allow_redirects = True)
 
     def scrape_stock_profile(self, symbol):
         """Scrapes MorningStar and returns a StockProfile object.
@@ -39,8 +69,7 @@ class MorningStarScraper(object):
         Arguments:
         symbol -- ASX symbol of the company we want to scrape, eg "CBA".
         """
-    
-        scraper = _MorningStarStockScraper(self._url_opener, symbol)
+        scraper = _MorningStarStockScraper(self._session, symbol)
         return scraper.scrape()
 
 class _MorningStarStockScraper(object):
@@ -51,10 +80,12 @@ class _MorningStarStockScraper(object):
     BALANCE_SHEET_URL = 'http://www.morningstar.com.au/Stocks/BalanceSheet/'
     HISTORICALS_URL = 'http://www.morningstar.com.au/Stocks/CompanyHistoricals/'
 
+    RETRIES = 5
+
     _last_scrape = 0
 
-    def __init__(self, url_opener, symbol):
-        self._url_opener = url_opener 
+    def __init__(self, session, symbol):
+        self._session = session 
         self._stock_profile = StockProfile(symbol)
 
     def _delay_scrape(self):
@@ -117,7 +148,20 @@ class _MorningStarStockScraper(object):
         self._delay_scrape()
 
         url = self.BALANCE_SHEET_URL + self._stock_profile.symbol
-        soup = BeautifulSoup(self._url_opener.open(url))
+
+        for i in itertools.count():
+            try:
+                page = self._session.get(url).text
+                break
+            except Exception:
+                if i >= self.RETRIES:
+                    raise
+
+                print("_scrape_balancesheet: connection failed; retrying...")
+                # sleep for 1 second
+                time.sleep(1)
+
+        soup = BeautifulSoup(page)
 
         self._scrape_title(soup)
 
@@ -139,7 +183,20 @@ class _MorningStarStockScraper(object):
         self._delay_scrape()
 
         url = self.HISTORICALS_URL + self._stock_profile.symbol
-        soup = BeautifulSoup(self._url_opener.open(url))
+
+        for i in itertools.count():
+            try:
+                page = self._session.get(url).text
+                break
+            except Exception:
+                if i >= self.RETRIES:
+                    raise
+
+                print("_scrape_historicals: connection failed; retrying...")
+                # sleep for 1 second
+                time.sleep(1)
+
+        soup = BeautifulSoup(page)
 
         parent = soup.find('div', { 'id' : 'HistoricalFinancialsTab' })
         raw_roc = self._scrape_field(parent, 'Return on capital')
