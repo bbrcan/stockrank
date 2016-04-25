@@ -19,36 +19,42 @@ def _rank_stocks(stock_profiles):
     return ranked_stocks
 
 class StockRank(object):
+    """Our application's interface, used by main(). Has high-level functions to
+    scrape stocks, load them from a database, or print them.
+    """
 
     def __init__(self):
         self._stock_profiles = []
+        self._db = StockDatabase()
 
     def print_stocks(self):
-
+        """Prints out a list of our stocks, in ranked order, as a fancy table.
+        """
         buf = ('%-4s %-6s %-30s %-20s %17s %15s %10s' 
                 % ('#', 'Symbol', 'Title', 'Sector', 'Market Cap', 
                     'Earnings Yield', 'ROC'))
         print(buf)
         print('-' * len(buf))
-        i = 1
 
-        for stock in self._stock_profiles:
+        for i, stock in enumerate(self._stock_profiles):
             print('%-4d %-6s %-30s %-20s %17s %15.2f %10.2f' 
-                    % (i, stock.symbol, stock.title[:30], stock.sector[:20],
+                    % (i+1, stock.symbol, stock.title[:30], stock.sector[:20],
                         '${:,}'.format(stock.market_cap), stock.earnings_yield,
                         stock.return_on_capital))
-            i += 1
 
-    def load(self):
-
-        db = StockDatabase()
-
-        if not db.empty():
-            self._stock_profiles = _rank_stocks(db.get_stock_profiles())
-            return
-
+    def load_local(self):
+        """Loads a locally stored copy of the list of stocks.
+        """
+        self._stock_profiles = _rank_stocks(self._db.get_stock_profiles())
+    
+    def download(self):
+        """Gets a list of stocks from online sources.
+        
+        (Note that at this level of abstraction, the fact that we are actually 
+        "scraping" is hidden. Hence why this function is named "download()")
+        """
+        # scrape
         scraper = StockScraper()
         self._stock_profiles = _rank_stocks(scraper.scrape_stock_profiles())
-
-        db.populate(self._stock_profiles)
-
+        # save to db
+        self._db.populate(self._stock_profiles)
