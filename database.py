@@ -7,10 +7,8 @@ class StockDatabase(object):
     """Class used to manage the storage and retrieval of stock data from an
     underlying database.
     """
-    DB_PATH = 'stockrank.db'
-
-    def __init__(self):
-        db = sqlite3.connect(self.DB_PATH)
+    def __init__(self, config):
+        db = sqlite3.connect(config.get('Application', 'database_path'))
         db.execute('CREATE TABLE IF NOT EXISTS stocks ' 
                 '(symbol TEXT,'
                 'title TEXT,'

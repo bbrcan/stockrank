@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
 
-import configparser
 from scrapers.morningstar import MorningStarScraper
 from scrapers.google import GoogleScraper
 from scrapers.asx import AsxScraper
@@ -10,10 +9,7 @@ class StockScraper(object):
     """Used to scrape stock data from a variety of sources on the web. This
     class should be used by the client code instead of the specific scrapers.
     """
-    def __init__(self):
-        config = configparser.ConfigParser()
-        config.read('config.ini')
-
+    def __init__(self, config):
         ms_username = config.get('Credentials', 'morningstar_username')
         ms_password = config.get('Credentials', 'morningstar_password')
 

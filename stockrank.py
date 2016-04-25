@@ -1,11 +1,15 @@
 #!/usr/bin/env python3
 
+import configparser
 from database import StockDatabase
 from scrapers.scraper import StockScraper
 from helpers import sort_list_into_keys
 
 def _rank_stocks(stock_profiles):
-
+    """Ranks stocks by both earnings yield and return on capital.
+    Arguments:
+    stock_profiles -- A list of stock objects to rank.
+    """
     # list of stock symbols, ordered by earnings yield
     by_earnings = sort_list_into_keys(stock_profiles, 'symbol', 
             'earnings_yield')
@@ -21,11 +25,14 @@ def _rank_stocks(stock_profiles):
 class StockRank(object):
     """Our application's interface, used by main(). Has high-level functions to
     scrape stocks, load them from a database, or print them.
-    """
+    """ 
+    def __init__(self, config_path):
+        self._config = configparser.ConfigParser()
+        self._config.read(config_path)
 
-    def __init__(self):
         self._stock_profiles = []
-        self._db = StockDatabase()
+        self._db = StockDatabase(self._config)
+
 
     def print_stocks(self):
         """Prints out a list of our stocks, in ranked order, as a fancy table.
@@ -54,7 +61,7 @@ class StockRank(object):
         "scraping" is hidden. Hence why this function is named "download()")
         """
         # scrape
-        scraper = StockScraper()
+        scraper = StockScraper(self._config)
         self._stock_profiles = _rank_stocks(scraper.scrape_stock_profiles())
         # save to db
         self._db.populate(self._stock_profiles)
