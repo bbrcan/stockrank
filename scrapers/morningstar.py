@@ -34,17 +34,8 @@ class MorningStarScraper(object):
     def __init__(self, username, password):
         self.username = username
         self.password = password
-        #cookie_jar = http.cookiejar.CookieJar()
-        #self._user_agent = 'Mozilla/5.0'
         self._session = requests.session()
         self._session.mount('https://', TLSHTTPAdapter())
-
-        #https_handler = urllib.request.HTTPSHandler(
-        #        context=ssl.SSLContext(ssl.PROTOCOL_SSLv3))
-
-        #cookie_processor = urllib.request.HTTPCookieProcessor(cookie_jar)
-        #self._url_opener = urllib.request.build_opener(cookie_processor)
-        #self._url_opener.addheaders = [('User-agent', 'Mozilla/5.0')]
 
     def login(self):
         """Logs into MorningStar, so members-only pages can be loaded. This must
@@ -54,9 +45,6 @@ class MorningStarScraper(object):
 
         values = {'UserName': self.username, 'Password': self.password }
         headers = { 'User-agent' : 'Mozilla/5.0' }
-        #data = urllib.parse.urlencode(values)
-        #binary_data = data.encode('utf-8')
-        #self._url_opener.open(url, binary_data)
         self._session.post(url, 
                 data = values, 
                 headers = headers,
@@ -161,7 +149,7 @@ class _MorningStarStockScraper(object):
                 # sleep for 1 second
                 time.sleep(1)
 
-        soup = BeautifulSoup(page)
+        soup = BeautifulSoup(page, 'lxml')
 
         self._scrape_title(soup)
 
@@ -196,7 +184,7 @@ class _MorningStarStockScraper(object):
                 # sleep for 1 second
                 time.sleep(1)
 
-        soup = BeautifulSoup(page)
+        soup = BeautifulSoup(page, 'lxml')
 
         parent = soup.find('div', { 'id' : 'HistoricalFinancialsTab' })
         raw_roc = self._scrape_field(parent, 'Return on capital')
