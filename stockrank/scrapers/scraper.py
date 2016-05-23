@@ -1,7 +1,7 @@
-from scrapers.morningstar import MorningStarScraper
-from scrapers.google import GoogleScraper
-from scrapers.asx import AsxScraper
-from exceptions import FieldMissingException
+from stockrank.scrapers.morningstar import MorningStarScraper
+from stockrank.scrapers.google import GoogleScraper
+from stockrank.scrapers.asx import AsxScraper
+from stockrank.exceptions import FieldMissingException
 
 
 class StockScraper(object):

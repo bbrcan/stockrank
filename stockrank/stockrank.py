@@ -1,7 +1,7 @@
 import configparser
-from database import StockDatabase
-from scrapers.scraper import StockScraper
-from helpers import sort_list_into_keys
+from stockrank.database import StockDatabase
+from stockrank.scrapers.scraper import StockScraper
+from stockrank.helpers import sort_list_into_keys
 
 
 def _rank_stocks(stock_profiles):

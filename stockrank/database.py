@@ -1,5 +1,5 @@
 import sqlite3
-from stock import StockProfile
+from stockrank.stock import StockProfile
 
 
 class StockDatabase(object):

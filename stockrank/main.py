@@ -1,4 +1,4 @@
-from stockrank import StockRank
+from stockrank.stockrank import StockRank
 import argparse
 
 

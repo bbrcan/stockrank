@@ -1,7 +1,7 @@
 import urllib.request
 import json
-from stock import StockProfile
-from exceptions import FieldMissingException
+from stockrank.stock import StockProfile
+from stockrank.exceptions import FieldMissingException
 
 
 class GoogleScraper(object):

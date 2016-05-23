@@ -6,12 +6,12 @@ import random
 import requests
 import itertools
 
-from helpers import timestamp
-from exceptions import FieldMissingException
-from stock import StockProfile
-
 from requests.adapters import HTTPAdapter
 from requests.packages.urllib3.poolmanager import PoolManager
+
+from stockrank.helpers import timestamp
+from stockrank.exceptions import FieldMissingException
+from stockrank.stock import StockProfile
 
 
 class TLSHTTPAdapter(HTTPAdapter):

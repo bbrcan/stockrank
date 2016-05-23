@@ -1,10 +1,8 @@
-#!/usr/bin/env python3
-
 import os
-import requests
 import unittest
 from unittest import mock
-from scrapers.morningstar import MorningStarScraper
+from stockrank.scrapers.morningstar import MorningStarScraper
+
 
 class MockResponse(object):
     """A mock response returned by Session.get()
@@ -12,8 +10,9 @@ class MockResponse(object):
     def __init__(self, text):
         self.text = text
 
+
 class MockSession(object):
-    """Mock session object used to retrieve local html files for testing. 
+    """Mock session object used to retrieve local html files for testing.
     Functions used to connect to a remote server (mount(), post()) do nothing.
     """
     def mount(self, prefix, adapter):
@@ -35,6 +34,7 @@ class MockSession(object):
 
         raise Exception("No file")
 
+
 def get_mock_session():
     m = MockSession()
 
@@ -43,6 +43,7 @@ def get_mock_session():
 
     return _get_mock_session
 
+
 class MorningStarTests(unittest.TestCase):
 
     @mock.patch('requests.session', get_mock_session())
@@ -50,7 +51,7 @@ class MorningStarTests(unittest.TestCase):
         scraper = MorningStarScraper('username', 'password')
         stock = scraper.scrape_stock_profile('PXS')
         self.assertEqual(stock.symbol, 'PXS')
-        self.assertEqual(stock.title,'Pharmaxis Ltd')
+        self.assertEqual(stock.title, 'Pharmaxis Ltd')
         self.assertEqual(stock.return_on_capital, 0.36)
         self.assertEqual(stock.ebit, 19010000)
         self.assertEqual(stock.market_cap, 69000000)
