@@ -1,0 +1,2 @@
+class FieldMissingException(Exception):
+    pass
