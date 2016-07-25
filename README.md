@@ -1,3 +1,8 @@
+## Deprecated
+
+This package is now deprecated. Please checkout
+[https://github.com/bbrcan/asxmagic](asxmagic) instead.
+
 ## StockRank 
 
 The program seeks to implement the magic formula from Joel Greenblatt's book 
